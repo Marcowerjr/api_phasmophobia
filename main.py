@@ -7,6 +7,10 @@ import db_config as db
 
 app = create_app()
 
+@app.route('/test/')
+def test():
+    return jsonify({"message":"Testing"})
+
 @app.route('/api/all_ghosts/')
 def show_ghosts():
     all_ghosts=dumps(list(db.db.phasmophobia.find()))
