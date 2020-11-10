@@ -10,15 +10,22 @@ app = create_app()
 
 @app.route('/api/all_ghosts/', methods=['GET'])
 def show_ghosts():
-    all_ghosts=dumps(list(db.db.phasmophobia.find()))
-    return all_ghosts    
+    all_ghosts=list(db.db.phasmophobia.find())
+    for ghost in all_ghosts:
+        del ghost ["_id"]   
+
+    return jsonify({"all_ghosts":all_ghosts})    
 
 
 @app.route('/api/ghost/<int:n_ghost>/', methods=['GET'])
 def show_a_ghost(n_ghost):
-    ghost=dumps(db.db.phasmophobia.find_one({"n_ghost":n_ghost}))
+    ghost=db.db.phasmophobia.find_one({"n_ghost":n_ghost})
+    del ghost["_id"]
+
     if ghost != "null":
-        return ghost
+        return jsonify({
+            "ghost":ghost
+        })
     else:
         return jsonify({
                 "status":404,
@@ -27,7 +34,7 @@ def show_a_ghost(n_ghost):
     
 
 @app.route('/<string:password>/api/add_ghost/', methods=['POST'])
-def add_new_ghost(password):
+def add_new_ghost(password):    
     if password=="phasmophobia":
         if len(request.json) == 6:
             db.db.phasmophobia.insert_one({
